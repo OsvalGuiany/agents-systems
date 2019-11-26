@@ -51,15 +51,13 @@ public class BallsSimulator extends Simulator implements Simulable {
         // Trace
         System.out.println(balles);
 
-        afficherBalles(balles);
+        afficher();
     }
 
     /**
      * Affiche les balles dans la fenêtre *window* après avoir effacé le reste de l'affichage.
-     *
-     * @param balles Les balles à afficher.
      */
-    public void afficherBalles(Balls balles) {
+    public void afficher() {
         // Affichage des balles à l'écran
         getWindow().reset();
 

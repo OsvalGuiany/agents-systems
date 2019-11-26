@@ -12,12 +12,27 @@ public class Boids extends AbstractBoids {
     /**
      * Constructeur de boids conservant les valeurs par défaut de minInterval et maxInterval.
      *
+     * @param minX    Abscisse minimale d'un boid.
+     * @param minY    Ordonnée minimale d'un boid.
      * @param maxX    Abscisse maximale d'un boid.
      * @param maxY    Ordonnée maximale d'un boid.
      * @param nbBoids Nombre de boids à simuler.
+     * @param rayon   Rayon du boid.
      */
-    public Boids(int maxX, int maxY, int nbBoids) {
-        super(maxX, maxY, nbBoids);
+    public Boids(int minX, int minY, int maxX, int maxY, int nbBoids, int rayon) {
+        super(minX, minY, maxX, maxY, nbBoids, rayon);
+    }
+
+    /**
+     * Constructeur de boids conservant les valeurs dans un espace restreint.
+     *
+     * @param maxX    Abscisse maximale d'un boid.
+     * @param maxY    Ordonnée maximale d'un boid.
+     * @param nbBoids Nombre de boids à simuler.
+     * @param rayon   Rayon des boids
+     */
+    public Boids(int maxX, int maxY, int nbBoids, int rayon) {
+        super(maxX, maxY, nbBoids, rayon);
     }
 
     /**
@@ -30,7 +45,7 @@ public class Boids extends AbstractBoids {
      * @param minInterval Distance minimale entre deux boids qui se repoussent.
      */
     public Boids(int maxX, int maxY, int nbBoids, double maxInterval, double minInterval) {
-        super(maxX, maxY, nbBoids, maxInterval, minInterval);
+        super(maxX, maxY, nbBoids, maxInterval);
     }
 
     /**
@@ -42,9 +57,8 @@ public class Boids extends AbstractBoids {
         //les voisins des boids coorrespondant à une caractéristique
         // un boid doit prioritairement fuir les plus proches mais
         // s'il y a pas de boids à fuir, il se rapproche des autres
-        HashMap<Integer, ArrayList<Boid>> neighborsToFlee, neighborsToSeek;
-        // les boids dont le boid à l'indice i doit fuir
-        neighborsToFlee = new HashMap<Integer, ArrayList<Boid>>();
+        HashMap<Integer, ArrayList<Boid>> neighborsToSeek;
+
         // les boids dont le boid à l'indice i doit se rapprocher
         neighborsToSeek = new HashMap<Integer, ArrayList<Boid>>();
 
@@ -56,12 +70,8 @@ public class Boids extends AbstractBoids {
             for (Boid b : getBoids()) {
                 if (!b.equals(boid)) {
                     PVector sub = PVector.sub(b.getLocation(), boid.getLocation());
-                    if (sub.mag() <= getMinInterval()) {
-                        if (!neighborsToFlee.containsKey(i)) {
-                            neighborsToFlee.put(i, new ArrayList<Boid>());
-                        }
-                        neighborsToFlee.get(i).add(b);
-                    } else if (sub.mag() <= getMaxInterval()) {
+
+                    if (sub.mag() <= getMaxInterval()) {
                         if (!neighborsToSeek.containsKey(i)) {
                             neighborsToSeek.put(i, new ArrayList<Boid>());
                         }
@@ -69,20 +79,18 @@ public class Boids extends AbstractBoids {
                     }
                 }
             }
+
+            boid.normaliseLocation(getxMax(), getyMax());
         }
 
-        targets = this.computeTarget(neighborsToFlee, neighborsToSeek);
+        targets = this.computeTarget(neighborsToSeek);
         // faire avancer chaque boid dans une direction donnée.
         for (int i = 0; i < getBoids().size(); ++i) {
             boid = getBoid(i);
 
-            if (neighborsToFlee.get(i) != null && !neighborsToFlee.get(i).isEmpty()) {
-                boid.nextState(targets.get(i), false);
-            } else {
-                boid.nextState(targets.get(i), true);
-            }
+            boid.nextState(targets.get(i), true);
         }
-        
+        this.fleeBoids(0);
         this.returnOnScreen();
     }
 }

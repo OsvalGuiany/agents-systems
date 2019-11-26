@@ -14,16 +14,6 @@ import fr.ensimag.tpl.simulations.BoidsSimulator;
  */
 public class BoidsEvent extends SimulationEvent {
     /**
-     * Les boids simulés.
-     */
-    private AbstractBoids boids;
-
-    /**
-     * Simulateur de boids.
-     */
-    private BoidsSimulator simulator;
-
-    /**
      * Constructeur d'un événement sur les boids.
      *
      * @param date      Date d'exécution de l'événement.
@@ -32,9 +22,7 @@ public class BoidsEvent extends SimulationEvent {
      * @param em        Le gestionnaire d'événements courant.
      */
     public BoidsEvent(long date, AbstractBoids boids, BoidsSimulator simulator, EventManager em) {
-        super(date, em);
-        this.boids = boids;
-        this.simulator = simulator;
+        super(date, em, boids, simulator);
     }
 
     /**
@@ -42,9 +30,15 @@ public class BoidsEvent extends SimulationEvent {
      */
     @Override
     public void execute() {
-        // To do fonction afficher() simulator.afficher
-        boids.nextState();
-        simulator.afficher();
-        getEventManager().addEvent(new BoidsEvent(getDate() + 1, boids, simulator, getEventManager()));
+        executeAffichage();
+
+        getEventManager().addEvent(
+                new BoidsEvent(
+                        getDate() + 1,
+                        (AbstractBoids) getElements(),
+                        (BoidsSimulator) getSimulator(),
+                        getEventManager()
+                )
+        );
     }
 }

@@ -1,32 +1,32 @@
 package fr.ensimag.tpl.simulations;
 
-import fr.ensimag.tpl.elements.AbstractBoids;
-import fr.ensimag.tpl.events.BoidsEvent;
+import fr.ensimag.tpl.elements.ProiePredateur;
+import fr.ensimag.tpl.events.GroupBoidsEvent;
 import gui.GUISimulator;
 import gui.Simulable;
 
 import java.awt.*;
 
 /**
- * Simulateur des boids.
+ * Simulateur de 2 groupes de boids.
  */
-public class BoidsSimulator extends AbstractBoidsSimulator implements Simulable {
+public class GroupBoidsSimulator extends AbstractBoidsSimulator implements Simulable {
     /**
-     * Les boids à simuler.
+     * Modèle proie-prédateur à simuler.
      */
-    private AbstractBoids boids;
+    private ProiePredateur groups;
 
     /**
      * Constructeur du simulateur de boids.
      *
      * @param window La fenêtre graphique du simulateur.
-     * @param boids  Les boids à simuler.
+     * @param groups Le modèle proie-prédateur à simuler.
      */
-    public BoidsSimulator(GUISimulator window, AbstractBoids boids) {
+    public GroupBoidsSimulator(GUISimulator window, ProiePredateur groups) {
         super(window);
-        this.boids = boids;
+        this.groups = groups;
 
-        getEventManager().addEvent(new BoidsEvent(1, boids, this, getEventManager()));
+        getEventManager().addEvent(new GroupBoidsEvent(1, groups, this, getEventManager()));
     }
 
     /**
@@ -35,7 +35,7 @@ public class BoidsSimulator extends AbstractBoidsSimulator implements Simulable 
      */
     @Override
     public void restart() {
-        boids.restart();
+        groups.restart();
         afficher();
     }
 
@@ -55,6 +55,7 @@ public class BoidsSimulator extends AbstractBoidsSimulator implements Simulable 
     public void afficher() {
         getWindow().reset();
 
-        afficher(boids, Color.GREEN);
+        afficher(groups.getProies(), Color.GREEN);
+        afficher(groups.getPredateurs(), Color.RED);
     }
 }

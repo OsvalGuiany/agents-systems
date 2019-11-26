@@ -2,7 +2,6 @@ package fr.ensimag.tpl.simulations;
 
 import fr.ensimag.tpl.events.EventManager;
 import gui.GUISimulator;
-import gui.Simulable;
 
 /**
  * Classe abstraite modélisant un simulateur. Les comportements sont à implémenter dans des classes concrètes.
@@ -19,6 +18,7 @@ public abstract class Simulator {
 
     /**
      * Constructeur du simulateur abstrait.
+     *
      * @param window La fenêtre de simulation du simulateur.
      */
     public Simulator(GUISimulator window) {
@@ -27,6 +27,7 @@ public abstract class Simulator {
 
     /**
      * Accesseur au gestionnaire d'événements courant.
+     *
      * @return Gestionnaire d'événements.
      */
     public EventManager getEventManager() {
@@ -35,9 +36,15 @@ public abstract class Simulator {
 
     /**
      * Accesseur à la fenêtre du simulateur.
+     *
      * @return Objet représentant la fenêtre graphique du simulateur.
      */
     public GUISimulator getWindow() {
         return window;
     }
+
+    /**
+     * Méthode permettant d'afficher les éléments simulés à l'écran du simulateur.
+     */
+    public abstract void afficher();
 }

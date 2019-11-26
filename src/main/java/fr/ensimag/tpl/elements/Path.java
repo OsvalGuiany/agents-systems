@@ -40,6 +40,7 @@ public class Path {
 
     /**
      * Permet de connaître le point de départ du chemin.
+     *
      * @return Le point de départ du chemin.
      */
     public static PVector getStart() {
@@ -49,6 +50,7 @@ public class Path {
 
     /**
      * Permet de connaître le point d'arrivée du chemin.
+     *
      * @return Le point d'arrivée du chemin.
      */
     public static PVector getEnd() {
@@ -58,6 +60,7 @@ public class Path {
 
     /**
      * Accesseur du rayon du chemin.
+     *
      * @return Rayon du chemin.
      */
     public static float getRadius() {
@@ -67,6 +70,7 @@ public class Path {
 
     /**
      * Mutateur du rayon du chemin.
+     *
      * @param rad Rayon du chemin.
      */
     public static void setRadius(float rad) {
@@ -75,6 +79,7 @@ public class Path {
 
     /**
      * Mutateur de la largeur de l'écran.
+     *
      * @param width Largeur courante de l'écran.
      */
     public static void setScreenWidth(float width) {
@@ -83,6 +88,7 @@ public class Path {
 
     /**
      * Mutateur de la hauteur de l'écran.
+     *
      * @param height Hauteur courante de l'écran.
      */
     public static void setScreenHeight(float height) {

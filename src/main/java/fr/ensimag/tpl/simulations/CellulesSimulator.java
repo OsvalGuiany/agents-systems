@@ -51,13 +51,14 @@ public class CellulesSimulator extends Simulator implements Simulable {
         // On revient à l'état initial
         cellules.restart();
 
-        afficherGrille();
+        afficher();
     }
 
     /**
      * Affiche la grille complète avec le quadrillage et les cellules.
      */
-    public void afficherGrille() {
+    @Override
+    public void afficher() {
         getWindow().reset();
 
         // On récupère la taille du carré dans lequel on va tracer notre grille.

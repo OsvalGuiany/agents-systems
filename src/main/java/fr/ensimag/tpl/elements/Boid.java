@@ -34,6 +34,7 @@ public class Boid {
 
     /**
      * Constructeur d'un boid.
+     *
      * @param location Vecteur position du boid au départ.
      */
     public Boid(PVector location) {
@@ -41,7 +42,7 @@ public class Boid {
         this.velocity = PVector.random2D();
         this.acceleration = PVector.random2D();
         this.maxSpeed = 4;
-        this.maxForce = 6;
+        this.maxForce = 10;
         this.velocity.limit(maxSpeed);
     }
 
@@ -57,8 +58,9 @@ public class Boid {
 
     /**
      * Calcule l'évolution du boid entre l'état i et l'état (i+1).
-     * @param neighborsCenter TODO
-     * @param toSeek TODO
+     *
+     * @param neighborsCenter Le centre des voisins.
+     * @param toSeek          Le sens à suivre.
      */
     public void nextState(PVector neighborsCenter, boolean toSeek) {
         PVector desired, force;
@@ -77,6 +79,7 @@ public class Boid {
 
     /**
      * Accesseur du vecteur position du boid.
+     *
      * @return Vecteur position courant du boid.
      */
     public PVector getLocation() {
@@ -85,6 +88,7 @@ public class Boid {
 
     /**
      * Accesseur du vecteur vitesse du boid.
+     *
      * @return Vecteur vitesse courant du boid.
      */
     public PVector getVelocity() {
@@ -92,12 +96,59 @@ public class Boid {
     }
 
     /**
+     * Accesseur du vecteur accélération du boid.
+     *
+     * @return Vecteur accélération courant du boid.
+     */
+    public PVector getAcceleration() {
+        return this.acceleration;
+    }
+
+    /**
+     * Accesseur de la vitesse maximale du boid.
+     *
+     * @return La vitesse maximale du boid.
+     */
+    public float getMaxSpeed() {
+        return maxSpeed;
+    }
+
+    /**
+     * Accesseur de la force maximale appliquée au boid.
+     *
+     * @return La force maximale en module appliquée au boid.
+     */
+    public float getMaxForce() {
+        return maxForce;
+    }
+
+    /**
+     * Garde les coordonnées du boid dans la fenêtre de visualisation (on revient de l'autre côté de l'écran).
+     *
+     * @param xMax Valeur maximale en abscisse.
+     * @param yMax Valeur maximale en ordonnée.
+     */
+    public void normaliseLocation(int xMax, int yMax) {
+        if (getLocation().x >= 0)
+            getLocation().x = getLocation().x % xMax;
+        else
+            getLocation().x = getLocation().x + xMax;
+
+
+        if (getLocation().y >= 0)
+            getLocation().y = getLocation().y % yMax;
+        else
+            getLocation().y = getLocation().y + yMax;
+    }
+
+    /**
      * Donne une description textuelle du boid.
+     *
      * @return Description textuelle du boid.
      */
     @Override
     public String toString() {
-        return "Boid position : (" + location.x + ", " + location.y +
-                ") vitesse : (" + velocity.x + ", " + velocity.y + " )";
+        return "\nposition (" + location.x + ", " + location.y + "), " +
+                "vitesse : (" + velocity.x + ", " + velocity.y + ")";
     }
 }

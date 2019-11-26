@@ -7,14 +7,15 @@ public abstract class Elements {
     /**
      * Abscisse maximale à laquelle placer les éléments.
      */
-    private final int xMax;
+    private int xMax;
     /**
      * Ordonnée maximale à laquelle placer les éléments.
      */
-    private final int yMax;
+    private int yMax;
 
     /**
      * Constructeur des éléments à simuler.
+     *
      * @param xMax Abscisse maximale.
      * @param yMax Ordonnée maximale.
      * @throws IllegalArgumentException Renvoyée si l'abscisse ou l'ordonnée sont invalides (inférieur à 0).
@@ -32,6 +33,7 @@ public abstract class Elements {
 
     /**
      * Accesseur à l'abscisse maximale de la zone de simulation.
+     *
      * @return Abscisse maximale de la zone de simulation.
      */
     public int getxMax() {
@@ -39,10 +41,31 @@ public abstract class Elements {
     }
 
     /**
+     * @param xMax attribuer une valeur à xMax
+     */
+    public void setxMax(int xMax) {
+        this.xMax = xMax;
+    }
+
+    /**
+     * @param yMax la valeur à attribuer à yMax
+     */
+    public void setYMax(int yMax) {
+        this.yMax = yMax;
+    }
+
+    /**
      * Accesseur à l'ordonnée maximale de la zone de simulation.
+     *
      * @return Ordonnée maximale de la zone de simulation.
      */
     public int getyMax() {
         return yMax;
     }
+
+    /**
+     * Fonction calculant l'état de l'automate cellulaire
+     * au temps t+1.
+     */
+    public abstract void nextState();
 }

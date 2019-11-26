@@ -88,6 +88,13 @@ public class Balls extends Elements implements Iterable<int[]> {
     }
 
     /**
+     * Fonction de transition des balles d'un état i à un état (i+1).
+     */
+    public void nextState() {
+        translate(10, 10);
+    }
+
+    /**
      * Remet toutes les balles à leur position initiale.
      */
     public void reInit() {

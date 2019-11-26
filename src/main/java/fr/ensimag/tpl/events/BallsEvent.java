@@ -8,16 +8,6 @@ import fr.ensimag.tpl.simulations.BallsSimulator;
  */
 public class BallsEvent extends SimulationEvent {
     /**
-     * Les balles simulées.
-     */
-    private Balls balls;
-
-    /**
-     * Le simulateur de balles courant.
-     */
-    private BallsSimulator simulator;
-
-    /**
      * Constructeur d'événement propre à un événement sur les balles.
      *
      * @param date      Date à laquelle exécuter l'événement.
@@ -26,10 +16,7 @@ public class BallsEvent extends SimulationEvent {
      * @param em        Le gestionnaire d'événements courant.
      */
     public BallsEvent(long date, Balls balls, BallsSimulator simulator, EventManager em) {
-        super(date, em);
-
-        this.balls = balls;
-        this.simulator = simulator;
+        super(date, em, balls, simulator);
     }
 
     /**
@@ -39,13 +26,16 @@ public class BallsEvent extends SimulationEvent {
      */
     @Override
     public void execute() {
-        balls.translate(10, 10);
-
-        simulator.afficherBalles(balls);
+        executeAffichage();
 
         // Création du nouvel événement (pour animation perpétuelle)
         getEventManager().addEvent(
-                new BallsEvent(getDate() + 1, balls, simulator, getEventManager())
+                new BallsEvent(
+                        getDate() + 1,
+                        (Balls) getElements(),
+                        (BallsSimulator) getSimulator(),
+                        getEventManager()
+                )
         );
     }
 }

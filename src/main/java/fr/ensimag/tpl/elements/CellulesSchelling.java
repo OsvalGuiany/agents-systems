@@ -1,5 +1,6 @@
 package fr.ensimag.tpl.elements;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -13,25 +14,23 @@ public class CellulesSchelling extends Cellules {
     private final int K;
 
     /**
-     * Contient la chaine désignant les maisons vacantes
+     * Contient les coordonnées des maisons vacantes.
      */
-    private ArrayList<String> vacants = new ArrayList<String>();
+    private ArrayList<Point> vacants = new ArrayList<Point>();
 
     /**
-     * Contient les maisons vacantes à l'état initial.
+     * Contient les coordonnées des maisons vacantes à l'état initial.
      */
-    private ArrayList<String> vacantsPrev = new ArrayList<String>();
+    private ArrayList<Point> vacantsInit = new ArrayList<Point>();
 
     /**
-     * Constructeur de cellules de Schelling. Prend en paramètre les différents paramètres d'un automate de cellules de
-     * Schelling.
+     * Constructeur de cellules de Schelling. Ici on initialise les cellules et les maisons vacantes.
      *
      * @param largeur      le nombre d'habitations par ligne
      * @param hauteur      le nombre d'habitations par colonne
      * @param K            le seuil de voisins pour qu'une personne quitte son domicile
      * @param nbreCouleurs le nombre de couleur couleurs dans la zone.
      */
-
     public CellulesSchelling(int largeur, int hauteur, int K, int nbreCouleurs) {
         super(largeur, hauteur, nbreCouleurs + 1);
 
@@ -45,63 +44,77 @@ public class CellulesSchelling extends Cellules {
     }
 
     /**
-     * Remet les cellules à leur état initial.
+     * Remet les cellules et les maisons vacantes à leur état initial.
      */
     @Override
     public void restart() {
-        for (int i = 0; i < largeur; i++) {
-            System.arraycopy(this.etatsInit[i], 0, this.etats[i], 0, hauteur);
+        for (int i = 0; i < getLargeur(); i++) {
+            for (int j = 0; j < getHauteur(); j++) {
+                this.etats[i][j] = this.etatsInit[i][j];
+                this.etatsPrec[i][j] = this.etatsInit[i][j];
+            }
         }
 
-        for (int k = 0; k < this.vacants.size(); k++) {
-            this.vacantsPrev.add(k, this.vacantsPrev.get(k));
-        }
+        this.vacants = new ArrayList<Point>(this.vacantsInit);
     }
 
     /**
-     * Permet de selectionner au hasard un ensemble de maisons qui seront
-     * vacantes
+     * Pour initialiser les cellules vacantes.
+     * Et stocker leurs coordonées dans les tableaux vacants et vacantsInit.
      */
     private void initVacants() {
-        Random r = new Random();
-
-        while (vacants.size() < 0.25 * largeur * hauteur) {
-            int i = r.nextInt(largeur);
-            int j = r.nextInt(hauteur);
-
-            if (!vacants.contains(i + " " + j))
-                setVacant(i, j);
+        //On parcours les cellules et on stocke celles à l"état 0(vacantes) dans vacants.
+        for (int i = 0; i < getLargeur(); i++) {
+            for (int j = 0; j < getHauteur(); j++) {
+                if (isEtat(i, j, 0)) {
+                    setVacant(i, j);
+                }
+            }
         }
 
+        //si il n y a pas assez de cellules vacantes on en crée d'autres.
+        Random r = new Random();
+        while (vacants.size() < 0.25 * getLargeur() * getHauteur()) {
+            int i = r.nextInt(getLargeur());
+            int j = r.nextInt(getHauteur());
+
+            if (!isEtat(i, j, 0)) {
+                setVacant(i, j);
+                etatsInit[i][j] = 0;
+            }
+        }
+
+        //On rempli le tableau vacantsInit pour mémoriser l'état initial.
         for (int k = 0; k < this.vacants.size(); k++) {
-            this.vacantsPrev.add(k, this.vacants.get(k));
+            this.vacantsInit.add(k, this.vacants.get(k));
         }
     }
 
     /**
-     * permet de passer à l'état suivant de nos cellules pour qu'éventuellement
-     * certaines familles puissent emménager dans d'autres maisons
+     * Passage à l'état suivant des cellules selon les couleurs de leurs voisins.
      */
     @Override
     public void nextState() {
-        for (int i = 0; i < largeur; i++) {
-            for (int j = 0; j < hauteur; j++) {
-                int[] values = neighboursValues(i, j);
-                int[] racetab = reduce(values, etats[i][j]);
-                int couleurDifferent = 0;
-
-                for (int num : racetab) {
-                    if (num != 0) {
-                        couleurDifferent += num;
+        for (int i = 0; i < getLargeur(); i++) {
+            for (int j = 0; j < getHauteur(); j++) {
+                // On traite que les cases occupées par des cellules.
+                if (!isEtat(i, j, 0)) {
+                    // Calcul de nombres de cellules de couleur differente de cellule courante.
+                    int nDiffCells = 0;
+                    int[] values = neighboursValues(i, j);
+                    for (int value : values) {
+                        if (value != 0) {
+                            nDiffCells++;
+                        }
                     }
-                }
 
-                // s'il a plus de K voisins de couleurs différente à la sienne,
-                // alors, il doit démanger sinon, il reste
-                if (couleurDifferent > K) {
-                    int couleur = etats[i][j];
-                    setVacant(i, j);
-                    setHouse(couleur);
+                    // Si on trouve plus de K cellules de couleurs differentes
+                    // La cellule courant déménage.
+                    if (nDiffCells > K) {
+                        int couleur = etats[i][j];
+                        setVacant(i, j);
+                        getNewHouse(couleur);
+                    }
                 }
             }
         }
@@ -110,77 +123,50 @@ public class CellulesSchelling extends Cellules {
     }
 
     /**
-     * @param tab tableau contenant les valeurs à réduire.
-     * @return un tableau contenant le nombre de voisins par couleur
-     */
-    private int[] reduce(int[] tab, int c) {
-        int[] val = new int[nombreEtats];
-
-        for (int i = 0; i < tab.length; i++) {
-            // chaque val[i] contient le nombre de voisins ayant la couleur i.
-            if (tab[i] > 0 && tab[i] != c)
-                val[tab[i]] += 1;
-        }
-
-        return val;
-    }
-
-
-    /**
-     * Permet de savoir si la cellule est vacante ou non.
+     * Donne la couleur c à la case vide (i, j) et enleve cettes case de tableau vacants.
      *
-     * @param i le rang de la cellule
-     * @param j la colonne de la cellule
-     * @return Retourne vrai si la cellule est vacante et faux sinon
+     * @param i Abscisse de la case.
+     * @param j Ordonnée de la case.
+     * @param c Couleur à donner à la case (i, j).
      */
-    public boolean isVacant(int i, int j) {
-        return vacants.contains(i + " " + j);
-    }
-
-    /**
-     * @param i le rang de la cellule
-     * @param j la colonne de la cellule
-     *          permet d'occuper une cellule
-     */
-    private void isOccupied(int i, int j) {
-        if (!isVacant(i, j)) {
-            throw new RuntimeException(
-                    "the house at the position " + i + " " + j
-                            + "is already occupied"
-            );
+    private void setOccupied(int i, int j, int c) {
+        if (!isEtat(i, j, 0)) {
+            throw new RuntimeException("the house at the position " + i + " " + j
+                    + "is already occupied");
         }
-
-        vacants.remove(i + " " + j);
+        etats[i][j] = c;
+        vacants.remove(new Point(i, j));
     }
 
-    /**
-     * @param c couleur de la famille qui occupera une maison vacante
-     *          Permet d'attribuer un domicile vacant à une famille.
-     */
-    private void setHouse(int c) {
-        if (!this.vacants.isEmpty()) {
-            int index = (new Random()).nextInt(this.vacants.size());
-            String str = vacants.get(index);
-            int sp = str.indexOf(" ");
-            int i = Integer.parseInt(str.substring(0, sp));
-            int j = Integer.parseInt(str.substring(sp + 1));
 
-            isOccupied(i, j);
-            etats[i][j] = c;
+    /**
+     * Place une cellule de couleur c dans une case vide.
+     *
+     * @param c couleur de la cellule qui cherche une maison vacante.
+     */
+    private void getNewHouse(int c) {
+        if (!this.vacants.isEmpty()) {
+            // On choisit une maison vacante aléatoirement.
+            int index = (new Random()).nextInt(this.vacants.size());
+            Point vacantCell = vacants.get(index);
+
+            // On place la cellule dans la maison choisie.
+            setOccupied((int) vacantCell.getX(), (int) vacantCell.getY(), c);
         } else {
             throw new RuntimeException("Il n'y a plus de maison libre");
         }
     }
 
     /**
-     * @param i le rang de la cellule (maison)
-     * @param j la colonne de la maison (cellule) qu'on veut mettre vacant
-     *          pPrmet de mettre une maison vacante au cas ou une famille l'a quitté
+     * Transforme la case (i, j) en une maison vacante et l'ajoute au teableau des maison vacantes.
+     *
+     * @param i Abscisse de la case.
+     * @param j Ordonnée de la case.
      */
     private void setVacant(int i, int j) {
-        if (!isVacant(i, j)) {
+        if (!isEtat(i, j, 0)) {
             etats[i][j] = 0;
-            vacants.add(i + " " + j);
+            vacants.add(new Point(i, j));
         }
     }
 }

@@ -13,27 +13,15 @@ import fr.ensimag.tpl.simulations.CellulesSimulator;
  */
 public class CellulesEvent extends SimulationEvent {
     /**
-     * Les cellules modélisées.
-     */
-    private Cellules cellules;
-
-    /**
-     * Le simulateur de cellules.
-     */
-    private CellulesSimulator simulator;
-
-    /**
      * Constructeur d'événément propre à un changement d'état d'une cellule.
      *
      * @param date      Date à laquelle exécuter l'événement.
      * @param cellules  Les cellules modélisées.
      * @param simulator Le simulateur des cellules modélisées.
+     * @param em        Le gestionnaire d'événements courant.
      */
     public CellulesEvent(long date, Cellules cellules, CellulesSimulator simulator, EventManager em) {
-        super(date, em);
-
-        this.cellules = cellules;
-        this.simulator = simulator;
+        super(date, em, cellules, simulator);
     }
 
     /**
@@ -41,15 +29,16 @@ public class CellulesEvent extends SimulationEvent {
      */
     @Override
     public void execute() {
-        // On passe à l'état suivant
-        cellules.nextState();
-
-        // Affichage
-        simulator.afficherGrille();
+        executeAffichage();
 
         // Création du nouvel événement (pour animation perpétuelle)
         getEventManager().addEvent(
-                new CellulesEvent(getDate() + 1, cellules, simulator, getEventManager())
+                new CellulesEvent(
+                        getDate() + 1,
+                        (Cellules) getElements(),
+                        (CellulesSimulator) getSimulator(),
+                        getEventManager()
+                )
         );
     }
 }

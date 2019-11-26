@@ -5,7 +5,7 @@ import java.util.Random;
 /**
  * Classe générique dont héritent tous les types de cellules utilisés.
  */
-public abstract class Cellules {
+public abstract class Cellules extends Elements {
     /**
      * Hauteur de la grille.
      */
@@ -46,6 +46,8 @@ public abstract class Cellules {
      * @throws IllegalArgumentException Exception renvoyée en cas de largeur ou hauteur négative ou nulle.
      */
     public Cellules(int largeur, int hauteur, int nombreEtats) {
+        super(500, 500);
+
         // Vérification des paramètres
         if (largeur <= 0 || hauteur <= 0) {
             throw new IllegalArgumentException("Taille invalide.");
@@ -83,12 +85,6 @@ public abstract class Cellules {
             }
         }
     }
-
-    /**
-     * Fonction calculant l'état de l'automate cellulaire
-     * au temps t+1.
-     */
-    public abstract void nextState();
 
     /**
      * Fonction de sauvegarde de l'état à t avant de calculer l'état global à t+1.
@@ -143,10 +139,11 @@ public abstract class Cellules {
     }
 
     /**
-     * Accesseur public pour savoir si une cellule est vivante (renvoie un booléen).
+     * Accesseur public pour savoir si une cellule est dans un état particulier (renvoie un booléen).
      *
-     * @param i L'abscisse de la cellule.
-     * @param j L'ordonnée de la cellule.
+     * @param i    L'abscisse de la cellule.
+     * @param j    L'ordonnée de la cellule.
+     * @param etat L'état dans lequel devrait être la cellule.
      * @return Retourne un booléen indiquant si il est vrai ou non que la cellule (i, j) est vivante.
      * @throws IllegalArgumentException Renvoyée si les coordonnées ne sont pas valides.
      */

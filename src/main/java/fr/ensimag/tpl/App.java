@@ -6,7 +6,7 @@ import fr.ensimag.tpl.tests.TestGUI;
 import java.io.Console;
 
 import static fr.ensimag.tpl.tests.TestBalls.testSimuBalls;
-import static fr.ensimag.tpl.tests.TestBoids.testSimuBoids;
+import static fr.ensimag.tpl.tests.TestBoids.*;
 import static fr.ensimag.tpl.tests.TestCells.*;
 import java.util.Scanner;
 
@@ -30,9 +30,12 @@ public class App {
         System.out.println("2 : Jeu de la vie de Conway.");
         System.out.println("3 : Jeu de l'immigration.");
         System.out.println("4 : Cellules de Schelling.");
-        System.out.println("5 : Simulation de \"boids\".");
-        System.out.println("6 : Test du sujet permettant de vérifier l'implémentation des événements discrets.");
-        System.out.println("7 : Test de la librairie GUI (TestGUI.java donné avec le sujet).");
+        System.out.println("5 : Simulation de \"boids\" classiques.");
+        System.out.println("6 : Simulation de \"boids\" suiveurs.");
+        System.out.println("7 : Simulation de \"boids\" suiveurs de chemins.");
+        System.out.println("8 : Modèle proie-prédateur.");
+        System.out.println("9 : Test du sujet permettant de vérifier l'implémentation des événements discrets.");
+        System.out.println("10 : Test de la librairie GUI (TestGUI.java donné avec le sujet).");
 
         Scanner sc = new Scanner(System.in);
 
@@ -131,7 +134,7 @@ public class App {
 
                     testSimuShelling(largeur, hauteur, seuil, nombreEtats);
                 }
-            } else if (input.equals("5")) {
+            } else if (input.equals("5") | input.equals("6") | input.equals("7") | input.equals("8")) {
                 int nombreBoids = 0;
 
                 while (nombreBoids <= 0) {
@@ -145,15 +148,23 @@ public class App {
                     }
                 }
 
-                testSimuBoids(nombreBoids);
-            } else if (input.equals("6")) {
+                if (input.equals("5")) {
+                    testSimuBoids(nombreBoids);
+                } else if (input.equals("6")) {
+                    testBoidsFollower(nombreBoids);
+                } else if (input.equals("7")) {
+                    testBoidsOnRoad(nombreBoids);
+                } else {
+                    testProiesPredateurs(nombreBoids);
+                }
+            } else if (input.equals("9")) {
                 // Test événements discrets
                 try {
                     TestEventManager.main(args);
                 } catch (InterruptedException e) {
                     throw new RuntimeException("Il y a eu un problème lors de l'exécution du test.");
                 }
-            } else if (input.equals("7")) {
+            } else if (input.equals("10")) {
                 TestGUI.test(args);
             }
 

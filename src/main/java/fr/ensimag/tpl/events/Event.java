@@ -12,7 +12,7 @@ public abstract class Event {
     /**
      * Constructeur de la classe Event.
      *
-     * @param date
+     * @param date Date à laquelle doit s'exécuter l'événement.
      * @throws IllegalArgumentException Exception renvoyée cas de date négative ou nulle.
      */
     public Event(long date) {

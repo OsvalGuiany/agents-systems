@@ -1,6 +1,6 @@
 package fr.ensimag.tpl.elements;
 
-import java.util.Random;
+import processing.core.PVector;
 
 /**
  * Classe modélisant des boids qui doivent suivre un chemin précis.
@@ -12,11 +12,14 @@ public class BoidsOnRoad extends AbstractBoids {
      * @param maxX        Valeur maximale en abscisse.
      * @param maxY        Valeur maximale en ordonnée.
      * @param nbBoids     Nombre de boids à modéliser.
-     * @param maxInterval TODO
-     * @param minInterval TODO
+     * @param maxInterval Distance maximale entre deux boids pour qu'ils
+     *                    soient considérés comme voisins.
+     * @param minInterval Distance minimale entre deux boids pour qu'ils se
+     *                    repoussent.
      */
-    public BoidsOnRoad(int maxX, int maxY, int nbBoids, double maxInterval, double minInterval) {
-        super(maxX, maxY, nbBoids, maxInterval, minInterval);
+    public BoidsOnRoad(int maxX, int maxY, int nbBoids, double maxInterval,
+                       double minInterval) {
+        super(maxX, maxY, nbBoids, maxInterval);
     }
 
     /**
@@ -25,9 +28,29 @@ public class BoidsOnRoad extends AbstractBoids {
      * @param maxX    Valeur maximale en abscisse.
      * @param maxY    Valeur maximale en ordonnée.
      * @param nbBoids Nombre de boids à modéliser.
+     * @param rayon   Rayon des boids
      */
-    public BoidsOnRoad(int maxX, int maxY, int nbBoids) {
-        super(maxX, maxY, nbBoids);
+    public BoidsOnRoad(int maxX, int maxY, int nbBoids, float rayon) {
+        super(maxX, maxY, nbBoids, rayon);
+    }
+
+    /**
+     * Projette un point sur une droite.
+     *
+     * @param loc   Endroit à partir duquel on veut calculer la normale.
+     * @param start Point du début de la route.
+     * @param end   Point de fin de la route à suivre
+     * @return Le point correspondant à la projection du point loc sur la
+     * droite déterminée par les points start et end.
+     */
+    public static PVector getNormalPoint(PVector loc, PVector start, PVector end) {
+        PVector a = PVector.sub(loc, start);
+        PVector b = PVector.sub(end, start);
+
+        b.normalize();
+        b.mult(a.dot(b));
+
+        return PVector.add(start, b);
     }
 
     /**
@@ -39,45 +62,39 @@ public class BoidsOnRoad extends AbstractBoids {
      */
     @Override
     public void nextState() {
-        // TODO code à refaire si possible avec les boucles for.
-        Path path = new Path();
-        BoidOnRoad boid1 = null, boid2 = null, boid3 = null;
+        for (Boid boid : getBoids()) {
+            this.followPath(boid);
 
-        // s'il le tableau de boids est vide, on la remplit.
-        if (this.getBoids().size() == 0) {
-            this.initBoids((new Random()).nextInt(120));
+            boid.normaliseLocation(this.getxMax(), this.getyMax());
         }
+    }
 
-        if (this.getBoid(0) != null) {
-            boid1 = (BoidOnRoad) this.getBoids().get(0);
-        }
-        if (this.getBoid(1) != null) {
-            boid2 = (BoidOnRoad) this.getBoid(1);
-        }
-        if (this.getBoid(2) != null) {
-            boid3 = (BoidOnRoad) this.getBoid(2);
-        }
+    /**
+     * Permet à un boid de suivre un chemin statique Path.
+     *
+     * @param boid Boid à déplacer le long du chemin.
+     */
+    public void followPath(Boid boid) {
+        PVector predict = boid.getVelocity();
+        predict.normalize();
+        predict.mult(25);
+        PVector nextLoc = PVector.add(boid.getLocation(), predict);
 
-        if (boid1 != null) {
-            boid1.followPath();
+        PVector a = Path.getStart();
+        PVector b = Path.getEnd();
+        PVector normalPoint = getNormalPoint(nextLoc, a, b);
 
-            if (boid1.getLocation().x > getxMax()) {
-                this.getBoids().remove(boid1);
-            }
-        }
-        if (boid2 != null) {
-            boid2.followPath();
+        PVector dir = PVector.sub(b, a);
+        dir.normalize();
+        dir.mult(10);
+        PVector target = PVector.add(normalPoint, dir);
 
-            if (boid2.getLocation().x > getxMax()) {
-                this.getBoids().remove(boid2);
-            }
-        }
-        if (boid3 != null) {
-            boid3.followPath();
+        float distance = PVector.dist(normalPoint, nextLoc);
 
-            if (boid3.getLocation().x > getxMax()) {
-                this.getBoids().remove(boid3);
-            }
+        if (distance > Path.getRadius()) {
+            boid.nextState(target, true);
+        } else {
+            boid.nextState(Path.getEnd(), true);
         }
     }
 }
